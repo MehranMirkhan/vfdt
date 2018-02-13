@@ -68,7 +68,10 @@ class DatasetCSVChunky(Dataset):
 
     def get_generator(self, epochs=1):
         for epoch in range(epochs):
+            counter = 0
             for chunk in self.data_generator:
+                print(counter)
+                counter += 1
                 for row in chunk.itertuples():
                     row = row[1:]
                     label = row[self.class_index]
