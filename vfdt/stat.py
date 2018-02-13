@@ -7,10 +7,11 @@ from math import sqrt
 
 
 class SuffStat(object):
-    """ Sufficient Statistics for each attribute and class
+    """ Sufficient Statistics for each attribute and class.
+        Base class for inheritance.
     """
     def add_value(self, v):
-        """ Adds a value to statistics
+        """ Adds a value to statistics.
         """
 
 
@@ -95,6 +96,13 @@ class SuffStatAttGaussian(object):
     def get_split_gain(self, metric):
         """ Measures how much information gain will be achieved
             by splitting on this attribute.
+            Make sure some data has arrived already.
+
+            Args:
+                metric (function): An impurity measure function (like gini)
+
+            Returns:
+                Best impurity measure acheived by splitting with this attribute.
         """
         candid_points = np.linspace(self.min_val,
                                     self.max_val,
@@ -116,11 +124,12 @@ class SuffStatAttGaussian(object):
         best_im_index = im.index(best_im)
         best_point = candid_points[best_im_index]
         self.best_point = best_point
-        class_counts = [stat.num_instances for stat in self.stats]
-        im = metric(class_counts)           # impurity measure
-        N = sum(class_counts)
-        gain = im - best_im / N
-        return gain
+        return best_im
+        # class_counts = [stat.num_instances for stat in self.stats]
+        # im = metric(class_counts)           # impurity measure
+        # N = sum(class_counts)
+        # gain = im - best_im / N
+        # return gain
 
     def get_best_split_point(self):
         """ Computes the best splitting point.
