@@ -1,13 +1,13 @@
 
 import unittest
 
-from . import stat
+from . import suffstat
 from . import metric
 
 
 class Test_SuffStatGaussian(unittest.TestCase):
     def test_mean_var(self):
-        s = stat.SuffStatGaussian()
+        s = suffstat.SuffStatGaussian()
         s.add_value(-1)
         s.add_value(1)
         mean, var = s.get_mean_var()
@@ -19,7 +19,7 @@ class Test_SuffStatGaussian(unittest.TestCase):
         self.assertAlmostEqual(var, 2/3)
 
     def test_split(self):
-        s = stat.SuffStatGaussian()
+        s = suffstat.SuffStatGaussian()
         s.add_value(1)
         s.add_value(2)
         s.add_value(3)
@@ -35,8 +35,8 @@ class Test_SuffStatAttGaussian(unittest.TestCase):
         g = metric.gini
         num_classes = 2
         num_candids = 2
-        s = stat.SuffStatAttGaussian(num_classes,
-                                     num_candids=num_candids)
+        s = suffstat.SuffStatAttGaussian(num_classes,
+                                         num_candids=num_candids)
         s.add_value(-2, 0)
         s.add_value(0, 0)
         s.add_value(1, 1)

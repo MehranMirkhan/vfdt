@@ -8,7 +8,8 @@ from math import sqrt
 
 class SuffStat(object):
     """ Sufficient Statistics for each attribute and class.
-        Base class for inheritance.
+
+    Base class for inheritance.
     """
     def add_value(self, v):
         """ Adds a value to statistics.
@@ -60,7 +61,8 @@ class SuffStatGaussian(SuffStat):
 
 class SuffStatAttDict(object):
     """ Sufficient Statistics for each attribute and all classes.
-        Assuming the attribute is nominal.
+
+    Assuming the attribute is nominal.
     """
     def __init__(self, num_classes):
         self.num_classes = num_classes
@@ -73,11 +75,13 @@ class SuffStatAttDict(object):
         """ Measures how much information gain will be achieved
             by splitting on this attribute.
         """
+        raise("Not yet implemented.")
 
 
 class SuffStatAttGaussian(object):
     """ Sufficient Statistics for each attribute and all classes.
-        Assuming the attribute is numerical.
+
+    Assuming the attribute is numerical.
     """
     def __init__(self, num_classes, num_candids=10):
         self.num_classes = num_classes
@@ -94,15 +98,15 @@ class SuffStatAttGaussian(object):
         self.stats[label].add_value(v)
 
     def get_split_gain(self, metric):
-        """ Measures how much information gain will be achieved
-            by splitting on this attribute.
-            Make sure some data has arrived already.
+        """ Measures information gain by splitting on this attribute.
 
-            Args:
-                metric (function): An impurity measure function (like gini)
+        Make sure some data has arrived already.
 
-            Returns:
-                Best impurity measure acheived by splitting with this attribute.
+        Args:
+            metric (function): An impurity measure function (like gini)
+
+        Returns:
+            best_im: Best impurity measure acheived by splitting with this attribute. ATTENTION: This is not the actual gain. gain = g(S) - best_im / N
         """
         candid_points = np.linspace(self.min_val,
                                     self.max_val,
