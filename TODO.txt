@@ -4,7 +4,6 @@ Project parts:
         read csv file               [DONE]
         read arff file              []
         read in chunks              [DONE]
-        train-test separation       []
     sufficient statistics
         Nominal                     []
         Gaussian                    [DONE]
@@ -18,11 +17,11 @@ Project parts:
             Check split             [DONE]
             Available attributes    [DONE]
         Decision node
-            Nominal                 []
+            Nominal                 [DONE]
             Numerical               [DONE]
         Tree
-            Learning                []
-            Inference               []
+            Learning                [DONE]
+            Inference               [DONE]
 --------------------------------------------------------
 
 Attribute info handling:
