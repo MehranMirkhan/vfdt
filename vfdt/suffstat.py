@@ -17,16 +17,20 @@ class SuffStat(object):
 
 
 class SuffStatDict(SuffStat):
-    def __init__(self):
-        self.stat = {}
+    def __init__(self, values):
+        self.values = values
+        self.value_count = {}
         self.num_instances = 0
 
     def add_value(self, v):
-        if v in self.stat:
-            self.stat[v] += 1
-        else:
-            self.stat[v] = 0
+        self.value_count[v] += 1
         self.num_instances += 1
+
+    def split(self):
+        """ Measures how much information gain will be achieved
+            by splitting on this attribute.
+        """
+        raise("Not yet implemented.")
 
 
 class SuffStatGaussian(SuffStat):
@@ -64,9 +68,10 @@ class SuffStatAttDict(object):
 
     Assuming the attribute is nominal.
     """
-    def __init__(self, num_classes):
+    def __init__(self, values, num_classes):
+        self.values = values
         self.num_classes = num_classes
-        self.stats = [SuffStatDict() for n in range(num_classes)]
+        self.stats = [SuffStatDict(values) for n in range(num_classes)]
 
     def add_value(self, v, label):
         self.stats[label].add_value(v)
