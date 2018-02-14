@@ -1,7 +1,7 @@
 
 import unittest
 
-from . import metric
+from .. import metric
 
 
 class Test_gini(unittest.TestCase):

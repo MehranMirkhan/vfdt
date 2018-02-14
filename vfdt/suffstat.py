@@ -15,6 +15,10 @@ class SuffStat(object):
         """ Adds a value to statistics.
         """
 
+    def split(self):
+        """Measures how many instances go into each partition
+        """
+
 
 class SuffStatDict(SuffStat):
     def __init__(self, values):
@@ -27,8 +31,7 @@ class SuffStatDict(SuffStat):
         self.num_instances += 1
 
     def split(self):
-        """ Measures how much information gain will be achieved
-            by splitting on this attribute.
+        """Measures how many instances go into each partition
         """
         raise("Not yet implemented.")
 
@@ -56,6 +59,8 @@ class SuffStatGaussian(SuffStat):
             raise("No value has arrived yet.")
 
     def split(self, v):
+        """Measures how many instances go into each partition
+        """
         mean, var = self.get_mean_var()
         std = sqrt(var)
         n_l = self.num_instances * norm.cdf(v, loc=mean, scale=std)
@@ -68,17 +73,18 @@ class SuffStatAttDict(object):
 
     Assuming the attribute is nominal.
     """
-    def __init__(self, values, num_classes):
-        self.values = values
-        self.num_classes = num_classes
-        self.stats = [SuffStatDict(values) for n in range(num_classes)]
+    def __init__(self, att_values):
+        self.att_values = att_values
+        self.stats = {}
 
     def add_value(self, v, label):
-        self.stats[label].add_value(v)
+        if label in self.stats:
+            self.stats[label].add_value(v)
+        else:
+            self.stats[label] = SuffStatDict(self.att_values)
 
     def get_split_gain(self):
-        """ Measures how much information gain will be achieved
-            by splitting on this attribute.
+        """ Measures information gain by splitting on this attribute.
         """
         raise("Not yet implemented.")
 
@@ -88,10 +94,9 @@ class SuffStatAttGaussian(object):
 
     Assuming the attribute is numerical.
     """
-    def __init__(self, num_classes, num_candids=10):
-        self.num_classes = num_classes
+    def __init__(self, num_candids=10):
         self.num_candids = num_candids
-        self.stats = [SuffStatGaussian() for n in range(num_classes)]
+        self.stats = {}
         self.min_val = float('inf')
         self.max_val = -float('inf')
 
@@ -100,6 +105,8 @@ class SuffStatAttGaussian(object):
             self.min_val = v
         if v > self.max_val:
             self.max_val = v
+        if label not in self.stats:
+            self.stats[label] = SuffStatGaussian()
         self.stats[label].add_value(v)
 
     def get_split_gain(self, metric):
@@ -112,13 +119,17 @@ class SuffStatAttGaussian(object):
 
         Returns:
             best_im: Best impurity measure acheived by splitting with this attribute. ATTENTION: This is not the actual gain. gain = g(S) - best_im / N
+            None: if check cannot be performed; There is only 1 class.
         """
+        if len(self.stats.keys()) < 2:
+            return None
         candid_points = np.linspace(self.min_val,
                                     self.max_val,
                                     self.num_candids + 2)
-        candid_points = candid_points[1:-1]     # Disgarding min & max vals
+        candid_points = candid_points[1:-1]     # Disgarding first & last candidates
         # Computing [(N_l, N_r), ...] for each point
-        class_counts_after_split = [[stat.split(v) for stat in self.stats]
+        class_counts_after_split = [[stat.split(v)
+                                     for stat in self.stats.values()]
                                     for v in candid_points]
         # Computing [(N_l1, N_l2, ...), (N_r1, N_r2, ...)] for each point
         class_counts_after_split = [list(zip(*c))

@@ -2,33 +2,30 @@
 import pandas as pd
 
 
-class Dataset(object):
-    def __init__(self, attributes, num_classes):
+class DatasetInfo(object):
+    def __init__(self, att_info, class_info):
         """
         Args:
-            attributes (list): [(att_name, 'numerical' or [list of values]), ...]
-            num_classes (int): Number of classes.
+            att_info (list): [(att_name, 'numerical' or [list of values]), ...]
+            class_info (list): list of labels (e.g. ['c1', 'c2', ...])
         Returns:
             object
         """
-        self.attributes = attributes
-        self.num_atts = len(attributes)
-        self.num_classes = num_classes
+        self.att_info = att_info
+        self.num_atts = len(att_info)
+        self.class_info = class_info
+        self.num_classes = len(class_info)
 
 
-class DatasetCSV(Dataset):
-    def __init__(self, attributes, num_classes,
-                 filepath, class_index=-1, **kwargs):
+class DatasetCSV(object):
+    def __init__(self, filepath, class_index=-1, **kwargs):
         """
         Args:
-            attributes (list): [(att_name, 'numerical' or [list of values]), ...]
-            num_classes (int): Number of classes.
             filepath (str): The path to the dataset file.
             class_index (int): Index of class in each row.
         Returns:
             object
         """
-        Dataset.__init__(self, attributes, num_classes)
         kwargs['chunksize'] = None
         self.data_frame = pd.read_csv(filepath, **kwargs)
         self.class_index = class_index
@@ -45,22 +42,18 @@ class DatasetCSV(Dataset):
                 yield instance, label
 
 
-class DatasetCSVChunky(Dataset):
+class DatasetCSVChunky(object):
     """Reads dataset in chunks. Useful when file is big and memory is short.
     """
-    def __init__(self, attributes, num_classes,
-                 filepath, chunksize, class_index=-1, **kwargs):
+    def __init__(self, filepath, chunksize, class_index=-1, **kwargs):
         """
         Args:
-            attributes (list): [(att_name, 'numerical' or [list of values]), ...]
-            num_classes (int): Number of classes.
             filepath (str): The path to the dataset file.
             chunksize (int): Read the file 1 chunk at a time.
             class_index (int): Index of class in each row.
         Returns:
             object
         """
-        Dataset.__init__(self, attributes, num_classes)
         self.data_generator = pd.read_csv(filepath,
                                           chunksize=chunksize,
                                           **kwargs)

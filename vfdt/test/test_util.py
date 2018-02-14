@@ -1,7 +1,7 @@
 
 import unittest
 
-from . import util
+from .. import util
 
 
 class Test_top_two(unittest.TestCase):

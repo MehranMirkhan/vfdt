@@ -1,8 +1,8 @@
 
 import unittest
 
-from . import suffstat
-from . import metric
+from .. import suffstat
+from .. import metric
 
 
 class Test_SuffStatGaussian(unittest.TestCase):
@@ -33,10 +33,7 @@ class Test_SuffStatGaussian(unittest.TestCase):
 class Test_SuffStatAttGaussian(unittest.TestCase):
     def test_correctness(self):
         g = metric.gini
-        num_classes = 2
-        num_candids = 2
-        s = suffstat.SuffStatAttGaussian(num_classes,
-                                         num_candids=num_candids)
+        s = suffstat.SuffStatAttGaussian(num_candids=2)
         s.add_value(-2, 0)
         s.add_value(0, 0)
         s.add_value(1, 1)

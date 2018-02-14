@@ -4,31 +4,36 @@ from . import util
 
 
 class LeafNode(object):
-    def __init__(self, attributes, num_classes):
+    def __init__(self, dataset_info, available_atts):
         """
         Args:
-            attributes (list): ['numerical' or [list of values]]
-            num_classes (int): Number of classes.
+            dataset_info (DatasetInfo)
+            available_atts (list): [True if att is available; False otherwise]
         Returns:
             object
         """
-        self.suff_stats = []
+        self.dataset_info = dataset_info
+        self.available_atts = available_atts
+        self.suff_stats = {}
         self.class_counts = {}
-        self.att_types = []
-        for values in attributes:
-            if type(values) is str and values.lower() == "numerical":
-                ss = suffstat.SuffStatAttGaussian(num_classes)
-                self.att_types.append('numerical')
-            elif type(values) is list:
-                ss = suffstat.SuffStatAttDict(values, num_classes)
-                self.att_types.append('nominal')
-            else:
-                raise("Wrong attribute: {}".format(values))
-            self.suff_stats.append(ss)
+        for att_index, att_info in enumerate(dataset_info.att_info):
+            att_name, values = att_info
+            if available_atts[att_index]:
+                if type(values) is str and values.lower() == "numerical":
+                    ss = suffstat.SuffStatAttGaussian(dataset_info.num_classes)
+                elif type(values) is list:
+                    ss = suffstat.SuffStatAttDict(values,
+                                                  dataset_info.num_classes)
+                else:
+                    raise("Wrong attribute: {}".format(values))
+                self.suff_stats[att_name] = ss
 
     def add_instance(self, instance, label):
-        for i, ss in enumerate(self.suff_stats):
-            ss.add_value(instance[i], label)
+        for att_index, att_info in enumerate(self.dataset_info.att_info):
+            att_name, _ = att_info
+            if self.available_atts[att_index]:
+                self.suff_stats[att_name].add_value(instance[att_index],
+                                                    label)
         if label in self.class_counts:
             self.class_counts[label] += 1
         else:
@@ -88,6 +93,6 @@ class DecisionNodeNominal(object):
 class VFDT(object):
     """Very Fast Decision Tree
     """
-    def __init__(self, dataset):
-        self.dataset = dataset
+    def __init__(self, dataset_info):
+        self.dataset_info = dataset_info
         self.root = LeafNode()

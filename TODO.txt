@@ -1,0 +1,40 @@
+
+Project parts:
+    dataset
+        read csv file               [DONE]
+        read arff file              []
+        read in chunks              [DONE]
+        train-test separation       []
+    sufficient statistics
+        Nominal                     []
+        Gaussian                    [DONE]
+        Gaussian-intersection       []
+    metrics
+        Information entropy         []
+        Gini                        [DONE]
+        Misclassification           []
+    tree
+        Leaf node
+            Check split             [DONE]
+            Available attributes    [DONE]
+        Decision node
+            Nominal                 []
+            Numerical               [DONE]
+        Tree
+            Learning                []
+            Inference               []
+--------------------------------------------------------
+
+Attribute info handling:
+if store att_info with order (in a list):
+    Hard to handle available atts.
+if store att_info without order (in a dict):
+    Impossible to convert file rows to dict.
+Solution:
+    [(att_name, att_values)]
+
+Class info handling:
+if only store num_classes:
+    I will have no idea what the labels will be ('c1', 'c2', ...), until runtime.
+    I need a SuffStat for each class.
+    Impossible to associate each label with a suffstat.
