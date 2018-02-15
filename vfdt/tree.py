@@ -9,7 +9,7 @@ class Node(object):
 
 
 class LeafNode(Node):
-    def __init__(self, dataset_info, available_atts):
+    def __init__(self, dataset_info, available_atts, **kwargs):
         """
         Args:
             dataset_info (DatasetInfo)
@@ -26,10 +26,9 @@ class LeafNode(Node):
             att_name, values = att_info
             if available_atts[att_index]:
                 if type(values) is str and values.lower() == "numerical":
-                    ss = suffstat.SuffStatAttGaussian(dataset_info.num_classes)
+                    ss = suffstat.SuffStatAttGaussian(**kwargs)
                 elif type(values) is list:
-                    ss = suffstat.SuffStatAttDict(values,
-                                                  dataset_info.num_classes)
+                    ss = suffstat.SuffStatAttDict(values, **kwargs)
                 else:
                     raise("Wrong attribute: {}".format(values))
                 self.suff_stats[att_name] = ss
@@ -61,14 +60,19 @@ class LeafNode(Node):
         class_counts = self.class_counts.values()       # ATTENTION: order is not preserved
         im = metric(class_counts)          # impurity of this node
         N = self.num_instances
-        best_gains = [im - ss.get_split_gain(metric) / N
-                      for ss in self.suff_stats]
+        best_gains = []
+        for att_name, att_values in self.dataset_info.att_info:
+            if att_name in self.suff_stats:
+                ss = self.suff_stats[att_name]
+                best_gains.append(im - ss.get_split_gain(metric) / N)
+            else:
+                best_gains.append(-float('inf'))
         (a1_index, a1_gain), (a2_index, a2_gain) = util.get_top_two(best_gains)
         e = threshold(N)
         if a1_gain - a2_gain > e or e < tiebreak:      # Split
-            att_type = self.att_types[a1_index]
-            if att_type == 'numerical':
-                att_value = self.suff_stats(a1_index).get_best_split_point()
+            att_name, att_values = self.dataset_info.att_info[a1_index]
+            if type(att_values) is str and att_values.lower() == 'numerical':
+                att_value = self.suff_stats[att_name].get_best_split_point()
                 return a1_index, att_value
             else:
                 raise("Splitting nominal attribute is not implemented yet.")
@@ -102,6 +106,14 @@ class DecisionNodeNumerical(Node):
         else:
             return self.left_child
 
+    def replace_child(self, child, new_child):
+        if child == self.left_child:
+            self.left_child = new_child
+        elif child == self.right_child:
+            self.right_child = new_child
+        else:
+            raise("No such child.")
+
 
 class DecisionNodeNominal(Node):
     def __init__(self, attribute_index, value_child_dict):
@@ -111,6 +123,13 @@ class DecisionNodeNominal(Node):
     def sort_down(self, instance):
         att_value = instance[self.attribute_index]
         return self.value_child_dict[att_value]
+
+    def replace_child(self, child, new_child):
+        for _att_val, _child in self.value_child_dict.items():
+            if _child == child:
+                att_val = _att_val
+                break
+        self.value_child_dict[att_val] = new_child
 
 
 class VFDT(object):

@@ -73,7 +73,7 @@ class SuffStatAttDict(object):
 
     Assuming the attribute is nominal.
     """
-    def __init__(self, att_values):
+    def __init__(self, att_values, **kwargs):
         self.att_values = att_values
         self.stats = {}
 
@@ -94,7 +94,7 @@ class SuffStatAttGaussian(object):
 
     Assuming the attribute is numerical.
     """
-    def __init__(self, num_candids=10):
+    def __init__(self, num_candids=10, **kwargs):
         self.num_candids = num_candids
         self.stats = {}
         self.min_val = float('inf')
