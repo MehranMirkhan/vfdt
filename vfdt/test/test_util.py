@@ -12,3 +12,11 @@ class Test_top_two(unittest.TestCase):
         self.assertEqual(m1, 12)
         self.assertEqual(m2_idx, 4)
         self.assertEqual(m2, 6)
+
+
+class Test_n2p(unittest.TestCase):
+    def test_exception(self):
+        with self.assertRaises(Exception):
+            util.n2p([0, 0, 0])
+        with self.assertRaises(Exception):
+            util.n2p([1, 0, -2])

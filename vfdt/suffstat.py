@@ -33,7 +33,7 @@ class SuffStatDict(SuffStat):
     def split(self):
         """Measures how many instances go into each partition
         """
-        raise("Not yet implemented.")
+        raise Exception("Not yet implemented.")
 
 
 class SuffStatGaussian(SuffStat):
@@ -56,7 +56,7 @@ class SuffStatGaussian(SuffStat):
                 var = self.min_var
             return mean, var
         else:
-            raise("No value has arrived yet.")
+            raise Exception("No value has arrived yet.")
 
     def split(self, v):
         """Measures how many instances go into each partition
@@ -86,7 +86,7 @@ class SuffStatAttDict(object):
     def get_split_gain(self):
         """ Measures information gain by splitting on this attribute.
         """
-        raise("Not yet implemented.")
+        raise Exception("Not yet implemented.")
 
 
 class SuffStatAttGaussian(object):
@@ -110,13 +110,13 @@ class SuffStatAttGaussian(object):
             self.stats[label] = SuffStatGaussian(self.min_var)
         self.stats[label].add_value(v)
 
-    def get_split_gain(self, metric):
+    def get_split_gain(self, impurity):
         """ Measures information gain by splitting on this attribute.
 
         Make sure some data has arrived already.
 
         Args:
-            metric (function): An impurity measure function (like gini)
+            impurity (function): An impurity measure function (like gini)
 
         Returns:
             best_im: Best impurity measure acheived by splitting with this attribute. ATTENTION: This is not the actual gain. gain = g(S) - best_im / N
@@ -137,7 +137,7 @@ class SuffStatAttGaussian(object):
                                     for c in class_counts_after_split]
         # Computing (g_l, g_r) and (n_l, n_r) for each point
         # im means impurity measure
-        ims = [(metric(c[0]), metric(c[1])) for c in class_counts_after_split]
+        ims = [(impurity(c[0]), impurity(c[1])) for c in class_counts_after_split]
         sums = [(sum(c[0]), sum(c[1])) for c in class_counts_after_split]
         # Computing the best candidate point
         im = [s[0]*i[0] + s[1]*i[1] for i, s in zip(ims, sums)]
@@ -147,7 +147,7 @@ class SuffStatAttGaussian(object):
         self.best_point = best_point
         return best_im
         # class_counts = [stat.num_instances for stat in self.stats]
-        # im = metric(class_counts)           # impurity measure
+        # im = impurity(class_counts)           # impurity measure
         # N = sum(class_counts)
         # gain = im - best_im / N
         # return gain

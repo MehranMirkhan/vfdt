@@ -1,18 +1,22 @@
 
 Project parts:
     dataset
-        read csv file               [DONE]
-        read arff file              []
-        read in chunks              [DONE]
+        DatasetInfo                 [DONE]
         chunky cross validation     [DONE]
     sufficient statistics
         Nominal                     []
         Gaussian                    [DONE]
         Gaussian-intersection       []
-    metrics
-        Information entropy         []
-        Gini                        [DONE]
-        Misclassification           []
+    measures
+        impurity
+            Information entropy     [DONE]
+            Gini                    [DONE]
+            Misclassification       [DONE]
+        bounds
+            Hoeffding               [DONE]
+            Mis                     [DONE]
+            Gini                    [DONE]
+
     tree
         Leaf node
             Check split             [DONE]
@@ -23,6 +27,7 @@ Project parts:
         Tree
             Learning                [DONE]
             Inference               [DONE]
+            print                   []
 --------------------------------------------------------
 
 Attribute info handling:

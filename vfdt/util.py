@@ -22,3 +22,11 @@ def get_top_two(vec):
             second_largest = item
             second_largest_idx = idx
     return (largest_idx, largest), (second_largest_idx, second_largest)
+
+
+def n2p(n):
+    s = sum(n)
+    if s <= 0:
+        raise Exception("n2p received bad vector: {}".format(n))
+    p = [i/s for i in n]
+    return p

@@ -3,7 +3,7 @@ import unittest
 
 from .. import tree
 from .. import dataset
-from .. import metric
+from .. import measure
 
 
 class Test_DecisionNode(unittest.TestCase):
@@ -45,7 +45,7 @@ class Test_LeafNode(unittest.TestCase):
                                   num_candids=num_candids)
 
     def test_split_check(self):
-        g = metric.gini
+        g = measure.gini_index
 
         def th(N):
             return 0

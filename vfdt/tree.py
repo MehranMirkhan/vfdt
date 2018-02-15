@@ -30,7 +30,7 @@ class LeafNode(Node):
                 elif type(values) is list:
                     ss = suffstat.SuffStatAttDict(values)
                 else:
-                    raise("Wrong attribute: {}".format(values))
+                    raise(Exception("Wrong attribute: {}".format(values)))
                 self.suff_stats[att_name] = ss
 
     def add_instance(self, instance, label):
@@ -45,11 +45,11 @@ class LeafNode(Node):
             self.class_counts[label] = 0
         self.num_instances += 1
 
-    def check_split(self, metric, threshold, tiebreak=0):
+    def check_split(self, impurity, threshold, tiebreak=0):
         """ Checks whether split is required.
 
         Args:
-            metric (function: list -> float): Calculates impurity of a list.
+            impurity (function: list -> float): Calculates impurity of a list.
             threshold (function: int -> float): Calculates Hoeffding bound.
             tiebreak (float): Minimum allowed Hoeffding bound (default 0).
 
@@ -58,13 +58,13 @@ class LeafNode(Node):
             otherwise, split info.
         """
         class_counts = self.class_counts.values()       # ATTENTION: order is not preserved
-        im = metric(class_counts)          # impurity of this node
+        im = impurity(class_counts)          # impurity of this node
         N = self.num_instances
         best_gains = []
         for att_name, att_values in self.dataset_info.att_info:
             if att_name in self.suff_stats:
                 ss = self.suff_stats[att_name]
-                best_gains.append(im - ss.get_split_gain(metric) / N)
+                best_gains.append(im - ss.get_split_gain(impurity) / N)
             else:
                 best_gains.append(-float('inf'))
         (a1_index, a1_gain), (a2_index, a2_gain) = util.get_top_two(best_gains)
@@ -75,7 +75,7 @@ class LeafNode(Node):
                 att_value = self.suff_stats[att_name].get_best_split_point()
                 return a1_index, att_value
             else:
-                raise("Splitting nominal attribute is not implemented yet.")
+                raise(Exception("Splitting nominal attribute is not implemented yet."))
         else:
             return None
 
@@ -112,7 +112,7 @@ class DecisionNodeNumerical(Node):
         elif child == self.right_child:
             self.right_child = new_child
         else:
-            raise("No such child.")
+            raise(Exception("No such child."))
 
 
 class DecisionNodeNominal(Node):
@@ -146,12 +146,13 @@ class VFDT(object):
         node = self.root
         while(type(node) is not LeafNode):
             node = node.sort_down(instance)
+        return node
 
     def learn(self, instance, label):
         leaf = self.sort_down(instance)
         leaf.add_instance(instance, label)
         if leaf.num_instances % self.config['grace_period'] == 0:
-            result = leaf.check_split(self.config['metric'],
+            result = leaf.check_split(self.config['impurity'],
                                       self.config['threshold'],
                                       self.config['tiebreak'])
             if result is not None:      # Split is required
@@ -184,7 +185,7 @@ class VFDT(object):
                     for node in value_child_dict.values():
                         node.set_parent(dnode)
                 else:
-                    raise("Wrong attribute: {}".format(values))
+                    raise(Exception("Wrong attribute: {}".format(values)))
                 leaf.parent.replace_child(leaf, dnode)
 
     def classify(self, instance):
