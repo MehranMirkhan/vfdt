@@ -1,8 +1,16 @@
 
-# import vfdt.dataset as ds
-
-
 def f1():
+    import pandas as pd
+    import vfdt.dataset as ds
+    # from sklearn.model_selection import train_test_split
+    file_path = './data/randomrbf.csv'
+    df = pd.read_csv(file_path, nrows=4, skiprows=4)
+    print(df)
+    for instance, label in ds.data_frame_iterator(df):
+        print('instance: {} - label: {}'.format(instance, label))
+
+
+def f2():
     a = [[(2, 4), (1, 6)], [(5, 3), (3, 2)], [(6, 1), (4, 3)]]
     b = [list(zip(*q)) for q in a]
     print(b)
@@ -11,13 +19,6 @@ def f1():
 
 
 def main():
-    # file_path = './data/randomrbf.csv'
-    # # dataset = ds.DatasetCSV(['Numerical']*10, 2, file_path)
-    # dataset = ds.DatasetCSVChunky(['Numerical']*10, 2,
-    #                               file_path, chunksize=10)
-    # counter = 0
-    # for instance, label in dataset.get_generator():
-    #     continue
     f1()
 
 if __name__ == '__main__':

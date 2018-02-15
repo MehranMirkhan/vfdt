@@ -41,6 +41,7 @@ class Test_LeafNode(unittest.TestCase):
         num_candids = 3
         self.dataset_info = dataset.DatasetInfo(att_info, class_info)
         self.node = tree.LeafNode(self.dataset_info, available_atts,
+                                  min_var=1e-12,
                                   num_candids=num_candids)
 
     def test_split_check(self):
@@ -52,7 +53,8 @@ class Test_LeafNode(unittest.TestCase):
             (-3, 1, 'c1'),
             (-1, -1, 'c1'),
             (1, -0.5, 'c2'),
-            (3, 0.5, 'c2')
+            (3, 0.5, 'c2'),
+            (-2, 0, 'c1')
         ]
         for d in ds:
             instance = d[:-1]
@@ -61,3 +63,4 @@ class Test_LeafNode(unittest.TestCase):
         att_index, att_value = self.node.check_split(g, th)
         self.assertEqual(att_index, 0)
         self.assertEqual(att_value, 0)
+        self.assertEqual(self.node.classify((-1, 0)), 'c1')

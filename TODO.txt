@@ -4,6 +4,7 @@ Project parts:
         read csv file               [DONE]
         read arff file              []
         read in chunks              [DONE]
+        chunky cross validation     [DONE]
     sufficient statistics
         Nominal                     []
         Gaussian                    [DONE]
@@ -37,3 +38,6 @@ if only store num_classes:
     I will have no idea what the labels will be ('c1', 'c2', ...), until runtime.
     I need a SuffStat for each class.
     Impossible to associate each label with a suffstat.
+
+train_test split handling:
+how to handle this when there is only one file?

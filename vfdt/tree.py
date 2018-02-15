@@ -9,7 +9,7 @@ class Node(object):
 
 
 class LeafNode(Node):
-    def __init__(self, dataset_info, available_atts, **kwargs):
+    def __init__(self, dataset_info, available_atts, min_var, num_candids):
         """
         Args:
             dataset_info (DatasetInfo)
@@ -26,9 +26,9 @@ class LeafNode(Node):
             att_name, values = att_info
             if available_atts[att_index]:
                 if type(values) is str and values.lower() == "numerical":
-                    ss = suffstat.SuffStatAttGaussian(**kwargs)
+                    ss = suffstat.SuffStatAttGaussian(min_var, num_candids)
                 elif type(values) is list:
-                    ss = suffstat.SuffStatAttDict(values, **kwargs)
+                    ss = suffstat.SuffStatAttDict(values)
                 else:
                     raise("Wrong attribute: {}".format(values))
                 self.suff_stats[att_name] = ss
@@ -139,7 +139,8 @@ class VFDT(object):
         self.dataset_info = dataset_info
         self.config = config
         available_atts = [True] * dataset_info.num_atts
-        self.root = LeafNode(dataset_info, available_atts)
+        self.root = LeafNode(dataset_info, available_atts,
+                             config['min_var'], config['num_candids'])
 
     def sort_down(self, instance):
         node = self.root
@@ -158,9 +159,13 @@ class VFDT(object):
                 att_name, values = self.dataset_info.att_info[att_index]
                 if type(values) is str and values.lower() == "numerical":
                     left_child = LeafNode(self.dataset_info,
-                                          leaf.available_atts)
+                                          leaf.available_atts,
+                                          self.config['min_var'],
+                                          self.config['num_candids'])
                     right_child = LeafNode(self.dataset_info,
-                                           leaf.available_atts)
+                                           leaf.available_atts,
+                                           self.config['min_var'],
+                                           self.config['num_candids'])
                     dnode = DecisionNodeNumerical(att_index, split_info,
                                                   left_child, right_child)
                     left_child.set_parent(dnode)
@@ -171,7 +176,9 @@ class VFDT(object):
                     value_child_dict = {}
                     for v in values:
                         value_child_dict[v] = LeafNode(self.dataset_info,
-                                                       available_atts)
+                                                       available_atts,
+                                                       self.config['min_var'],
+                                                       self.config['num_candids'])
                     dnode = DecisionNodeNominal(att_index,
                                                 value_child_dict)
                     for node in value_child_dict.values():

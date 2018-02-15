@@ -7,7 +7,7 @@ from .. import metric
 
 class Test_SuffStatGaussian(unittest.TestCase):
     def test_mean_var(self):
-        s = suffstat.SuffStatGaussian()
+        s = suffstat.SuffStatGaussian(min_var=1e-12)
         s.add_value(-1)
         s.add_value(1)
         mean, var = s.get_mean_var()
@@ -19,7 +19,7 @@ class Test_SuffStatGaussian(unittest.TestCase):
         self.assertAlmostEqual(var, 2/3)
 
     def test_split(self):
-        s = suffstat.SuffStatGaussian()
+        s = suffstat.SuffStatGaussian(min_var=1e-12)
         s.add_value(1)
         s.add_value(2)
         s.add_value(3)
@@ -33,7 +33,7 @@ class Test_SuffStatGaussian(unittest.TestCase):
 class Test_SuffStatAttGaussian(unittest.TestCase):
     def test_correctness(self):
         g = metric.gini
-        s = suffstat.SuffStatAttGaussian(num_candids=2)
+        s = suffstat.SuffStatAttGaussian(min_var=1e-12, num_candids=2)
         s.add_value(-2, 0)
         s.add_value(0, 0)
         s.add_value(1, 1)

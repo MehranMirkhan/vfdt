@@ -37,7 +37,7 @@ class SuffStatDict(SuffStat):
 
 
 class SuffStatGaussian(SuffStat):
-    def __init__(self, min_var=1e-12):
+    def __init__(self, min_var):
         self.sum = 0            # Sum of values
         self.sumsq = 0          # Sum of values squared
         self.num_instances = 0
@@ -73,7 +73,7 @@ class SuffStatAttDict(object):
 
     Assuming the attribute is nominal.
     """
-    def __init__(self, att_values, **kwargs):
+    def __init__(self, att_values):
         self.att_values = att_values
         self.stats = {}
 
@@ -94,7 +94,8 @@ class SuffStatAttGaussian(object):
 
     Assuming the attribute is numerical.
     """
-    def __init__(self, num_candids=10, **kwargs):
+    def __init__(self, min_var, num_candids):
+        self.min_var = min_var
         self.num_candids = num_candids
         self.stats = {}
         self.min_val = float('inf')
@@ -106,7 +107,7 @@ class SuffStatAttGaussian(object):
         if v > self.max_val:
             self.max_val = v
         if label not in self.stats:
-            self.stats[label] = SuffStatGaussian()
+            self.stats[label] = SuffStatGaussian(self.min_var)
         self.stats[label].add_value(v)
 
     def get_split_gain(self, metric):

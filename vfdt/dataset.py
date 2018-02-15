@@ -1,4 +1,5 @@
 
+import numpy as np
 import pandas as pd
 
 
@@ -17,59 +18,47 @@ class DatasetInfo(object):
         self.num_classes = len(class_info)
 
 
-class DatasetCSV(object):
-    def __init__(self, filepath, class_index=-1, **kwargs):
-        """
-        Args:
-            filepath (str): The path to the dataset file.
-            class_index (int): Index of class in each row.
-        Returns:
-            object
-        """
-        kwargs['chunksize'] = None
-        self.data_frame = pd.read_csv(filepath, **kwargs)
-        self.class_index = class_index
+def data_frame_iterator(data_frame, class_index=-1):
+    """Iterates a pandas dataframe.
 
-    def get_generator(self, epochs=1):
-        for epoch in range(epochs):
-            for row in self.data_frame.itertuples():
-                row = row[1:]
-                label = row[self.class_index]
-                if self.class_index == -1:
-                    instance = row[:-1]
-                else:
-                    instance = row[0:self.class_index] + row[self.class_index + 1:]
-                yield instance, label
+    Args:
+        data_frame (pandas.DataFrame)
+        class_index (int): the index of label column
 
-
-class DatasetCSVChunky(object):
-    """Reads dataset in chunks. Useful when file is big and memory is short.
+    Yields:
+        instance (tuple), label
     """
-    def __init__(self, filepath, chunksize, class_index=-1, **kwargs):
-        """
-        Args:
-            filepath (str): The path to the dataset file.
-            chunksize (int): Read the file 1 chunk at a time.
-            class_index (int): Index of class in each row.
-        Returns:
-            object
-        """
-        self.data_generator = pd.read_csv(filepath,
-                                          chunksize=chunksize,
-                                          **kwargs)
-        self.class_index = class_index
+    for row in data_frame.itertuples():
+        row = row[1:]
+        label = row[class_index]
+        if class_index == -1:
+            instance = row[:-1]
+        else:
+            instance = row[0:class_index] + row[class_index + 1:]
+        yield instance, label
 
-    def get_generator(self, epochs=1):
-        for epoch in range(epochs):
-            counter = 0
-            for chunk in self.data_generator:
-                print(counter)
-                counter += 1
-                for row in chunk.itertuples():
-                    row = row[1:]
-                    label = row[self.class_index]
-                    if self.class_index == -1:
-                        instance = row[:-1]
-                    else:
-                        instance = row[0:self.class_index] + row[self.class_index + 1:]
-                    yield instance, label
+
+def kfold_split(num_instances, k):
+    """Generates indices for splitting a dataset.
+
+    Example:
+        kfold_idx = kfold_split(num_instances, k)
+        for skip_row, skip_row_index in kfold_idx:
+            test_df = pandas.read_csv(..., skiprows=skip_row, nrows=fold_size)
+            train_df = pandas.read_csv(..., skiprows=skip_row_index)
+    """
+    fold_size = num_instances // k
+    skip_row = [i * fold_size for i in range(k)]
+    skip_row_index = [range(i, i+fold_size) for i in skip_row]
+    return zip(skip_row, skip_row_index)
+
+
+def kfold_cross_validation(filepath, num_instances, k, **kwargs):
+    fold_size = num_instances // k
+    kfold_idx = kfold_split(num_instances, k)
+    for skip_row, skip_row_index in kfold_idx:
+        test_df = pd.read_csv(filepath, skiprows=skip_row, nrows=fold_size,
+                              **kwargs)
+        train_df = pd.read_csv(filepath, skiprows=skip_row_index,
+                               **kwargs)
+        yield train_df, test_df
