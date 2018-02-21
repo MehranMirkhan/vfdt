@@ -9,7 +9,8 @@ from . import util
 
 def information_entropy(n):
     p = util.n2p(n)
-    return -sum([i*math.log(i) for i in p])
+    p = [i for i in p if i > 0]
+    return -sum([i * math.log(i) for i in p])
 
 def gini_index(n):
     p = util.n2p(n)

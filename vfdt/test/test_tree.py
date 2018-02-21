@@ -97,5 +97,5 @@ class Test_Show(unittest.TestCase):
         n2.class_counts = {'c0': 3, 'c1': 4}
         n1 = tree.DecisionNodeNumerical(dataset_info, 1, 3, n3, n2)
         n0 = tree.DecisionNodeNumerical(dataset_info, 0, -1, n4, n1)
-        print()
-        n0.show(0)
+        # print()
+        # n0.show(0)

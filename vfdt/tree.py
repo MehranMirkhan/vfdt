@@ -1,4 +1,6 @@
 
+import logging
+
 from . import suffstat
 from . import util
 
@@ -69,6 +71,11 @@ class LeafNode(Node):
                 best_gains.append(-float('inf'))
         (a1_index, a1_gain), (a2_index, a2_gain) = util.get_top_two(best_gains)
         e = threshold(N)
+        logging.debug('SplitCheck [a1 {}][a2 {}][e {}]'.format((a1_index,
+                                                                a1_gain),
+                                                               (a2_index,
+                                                                a2_gain),
+                                                               e))
         if a1_gain - a2_gain > e or e < tiebreak:      # Split
             att_name, att_values = self.dataset_info.att_info[a1_index]
             if type(att_values) is str and att_values.lower() == 'numerical':
@@ -120,9 +127,11 @@ class DecisionNodeNumerical(Node):
 
     def show(self, level):
         att_name = self.dataset_info.att_info[self.attribute_index][0]
-        print('|  '*level, '{} >= {}'.format(att_name, self.decision_value))
+        print('|  '*level,
+              '{} >= {:.4f}'.format(att_name, self.decision_value))
         self.right_child.show(level + 1)
-        print('|  '*level, '{} < {}'.format(att_name, self.decision_value))
+        print('|  '*level,
+              '{} < {:.4f}'.format(att_name, self.decision_value))
         self.left_child.show(level + 1)
 
 
@@ -159,6 +168,7 @@ class VFDT(object):
         available_atts = [True] * dataset_info.num_atts
         self.root = LeafNode(dataset_info, available_atts,
                              config['min_var'], config['num_candids'])
+        self.root.set_parent(None)
 
     def sort_down(self, instance):
         node = self.root
@@ -190,6 +200,7 @@ class VFDT(object):
                                                   left_child, right_child)
                     left_child.set_parent(dnode)
                     right_child.set_parent(dnode)
+                    dnode.set_parent(leaf.parent)
                 elif type(values) is list:
                     available_atts = list(leaf.available_atts)
                     available_atts[att_index] = False
@@ -204,13 +215,17 @@ class VFDT(object):
                                                 value_child_dict)
                     for node in value_child_dict.values():
                         node.set_parent(dnode)
+                    dnode.set_parent(leaf.parent)
                 else:
                     raise(Exception("Wrong attribute: {}".format(values)))
-                leaf.parent.replace_child(leaf, dnode)
+                if leaf.parent is not None:
+                    leaf.parent.replace_child(leaf, dnode)
+                else:
+                    self.root = dnode
 
     def classify(self, instance):
         leaf = self.sort_down(instance)
-        return leaf.classify(instance)
+        return leaf.get_major_label()
 
     def show(self):
         self.root.show(0)
