@@ -3,12 +3,10 @@ import pandas as pd
 import logging
 import math
 import time
+from joblib import Parallel, delayed
 
 import vfdt.dataset as ds
 from vfdt import tree, measure
-
-
-logging.basicConfig(level=logging.ERROR)
 
 
 def f1():
@@ -88,11 +86,14 @@ def f4():
         'num_candids': 10
     }
     kfolds = 4
-    accs = []
-    for train_df, test_df in ds.kfold_cross_validation(filepath,
-                                                       num_instances,
-                                                       kfolds):
-        train_model(dataset_info, config, train_df, test_df, accs)
+    # accs = []
+    accs = Parallel(n_jobs=kfolds)(delayed(train_model)(dataset_info, config,
+                                                        train_df, test_df, [])
+                                   for train_df, test_df in ds.kfold_cross_validation(filepath, num_instances, kfolds))
+    # for train_df, test_df in ds.kfold_cross_validation(filepath,
+    #                                                    num_instances,
+    #                                                    kfolds):
+    #     train_model(dataset_info, config, train_df, test_df, accs)
     print('accuracy average: {}'.format(sum(accs)/len(accs)))
 
 
@@ -111,6 +112,7 @@ def train_model(dataset_info, config, train_df, test_df, results):
     model.show()
     print('Accuracy = {:.4f}'.format(acc))
     results.append(acc)
+    return acc
 
 
 def f5():
@@ -136,6 +138,7 @@ def f5():
 
 
 def main():
+    logging.basicConfig(level=logging.ERROR)
     start = time.time()
     f4()
     print('--- {} seconds ---'.format(time.time() - start))

@@ -1,8 +1,10 @@
 
 import logging
+from sklearn.base import BaseEstimator, ClassifierMixin
 
 from . import suffstat
 from . import util
+from . import dataset as ds
 
 
 class Node(object):
@@ -229,3 +231,30 @@ class VFDT(object):
 
     def show(self):
         self.root.show(0)
+
+
+# class VFDTClassifier(BaseEstimator, ClassifierMixin):
+#     """VFDT classifier"""
+
+#     def __init__(self, dataset_info, config):
+#         """
+#         Called when initializing the classifier
+#         """
+#         self.dataset_info = dataset_info
+#         self.config = config
+#         self.vfdt = VFDT(dataset_info, config)
+
+#     def fit(self, X, y=None):
+#         """
+#         This should fit classifier. All the "work" should be done here.
+#         """
+#         for instance, label in ds.data_frame_iterator(X):
+#             self.vfdt.learn(instance, label)
+#         return self
+
+#     def predict(self, X, y=None):
+#         pred = []
+#         for instance, label in ds.data_frame_iterator(X):
+#             pred.append(self.vfdt.classify(instance))
+
+#         return pred

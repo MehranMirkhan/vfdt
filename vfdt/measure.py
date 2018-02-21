@@ -32,3 +32,12 @@ def misclassification_quantile_bound(delta, N):
 
 def gini_quantile_bound(delta, K, N):
     return norm.ppf(1-delta) * math.sqrt((10*K*K - 16*K + 8) / N)
+
+
+class Hoeffding_bound_wrapper(object):
+    def __init__(self, R, delta):
+        self.R = R
+        self.delta = delta
+
+    def __call__(self, N):
+        return Hoeffding_bound(self.R, self.delta, N)
