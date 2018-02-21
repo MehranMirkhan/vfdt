@@ -79,7 +79,7 @@ class LeafNode(Node):
         else:
             return None
 
-    def classify(self, instance):
+    def get_major_label(self):
         major_label = None
         major_count = 0
         if not self.class_counts:       # No data has arrived
@@ -90,10 +90,14 @@ class LeafNode(Node):
                 major_count = count
         return major_label
 
+    def show(self, level):
+        print('|  '*level, 'class {}'.format(self.get_major_label()))
+
 
 class DecisionNodeNumerical(Node):
-    def __init__(self, attribute_index, decision_value,
+    def __init__(self, dataset_info, attribute_index, decision_value,
                  left_child, right_child):
+        self.dataset_info = dataset_info
         self.attribute_index = attribute_index
         self.decision_value = decision_value
         self.left_child = left_child
@@ -114,9 +118,17 @@ class DecisionNodeNumerical(Node):
         else:
             raise(Exception("No such child."))
 
+    def show(self, level):
+        att_name = self.dataset_info.att_info[self.attribute_index][0]
+        print('|  '*level, '{} >= {}'.format(att_name, self.decision_value))
+        self.right_child.show(level + 1)
+        print('|  '*level, '{} < {}'.format(att_name, self.decision_value))
+        self.left_child.show(level + 1)
+
 
 class DecisionNodeNominal(Node):
-    def __init__(self, attribute_index, value_child_dict):
+    def __init__(self, dataset_info, attribute_index, value_child_dict):
+        self.dataset_info = dataset_info
         self.attribute_index = attribute_index
         self.value_child_dict = value_child_dict
 
@@ -130,6 +142,12 @@ class DecisionNodeNominal(Node):
                 att_val = _att_val
                 break
         self.value_child_dict[att_val] = new_child
+
+    def show(self, level):
+        att_name = self.dataset_info.att_info[self.attribute_index][0]
+        for att_value, child in self.value_child_dict.items():
+            print('|  '*level, '{} = {}'.format(att_name, att_value))
+            self.child.show(level + 1)
 
 
 class VFDT(object):
@@ -167,7 +185,8 @@ class VFDT(object):
                                            leaf.available_atts,
                                            self.config['min_var'],
                                            self.config['num_candids'])
-                    dnode = DecisionNodeNumerical(att_index, split_info,
+                    dnode = DecisionNodeNumerical(self.dataset_info,
+                                                  att_index, split_info,
                                                   left_child, right_child)
                     left_child.set_parent(dnode)
                     right_child.set_parent(dnode)
@@ -180,7 +199,8 @@ class VFDT(object):
                                                        available_atts,
                                                        self.config['min_var'],
                                                        self.config['num_candids'])
-                    dnode = DecisionNodeNominal(att_index,
+                    dnode = DecisionNodeNominal(self.dataset_info,
+                                                att_index,
                                                 value_child_dict)
                     for node in value_child_dict.values():
                         node.set_parent(dnode)
@@ -191,3 +211,6 @@ class VFDT(object):
     def classify(self, instance):
         leaf = self.sort_down(instance)
         return leaf.classify(instance)
+
+    def show(self):
+        self.root.show(0)

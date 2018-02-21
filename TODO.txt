@@ -16,7 +16,6 @@ Project parts:
             Hoeffding               [DONE]
             Mis                     [DONE]
             Gini                    [DONE]
-
     tree
         Leaf node
             Check split             [DONE]
@@ -27,7 +26,7 @@ Project parts:
         Tree
             Learning                [DONE]
             Inference               [DONE]
-            print                   []
+            print                   [DONE]
 --------------------------------------------------------
 
 Attribute info handling:
